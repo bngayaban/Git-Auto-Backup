@@ -1,5 +1,17 @@
 #!/bin/bash
+currentBranch=`git branch | grep \* | cut -d ' ' -f2`
+git rev-parse --verify "AutoBackup"
+if [ $? -eq 0 ]
+then
+ 	echo "Branch Exists"
+else
+	echo "Branch Does Not Exist"
+	echo "Creating Branch AutoBackup"
+	git branch "AutoBackup"
+fi
 
+git checkout "AutoBackup"
 echo "Running backup `date +%D' '%r`"
 git add .
 git commit -m "backup `date +%D' '%r`"
+git checkout $currentBranch
