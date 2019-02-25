@@ -1,6 +1,18 @@
 #!/bin/bash
+
+# adds working directory and exits if Git repo doesnt exist
+git add .
+if [ $? -ne 0 ]
+then
+	echo "Git repository does not exist terminating"
+	exit 1
+fi
+
+# saves current working branch
 currentBranch=`git branch | grep \* | cut -d ' ' -f2`
-git rev-parse --verify "AutoBackup"
+
+# checks if AutoBackup branch exists and creates if otherwise
+git rev-parse --verify "AutoBackup" >/dev/null
 if [ $? -eq 0 ]
 then
  	echo "Branch Exists"
@@ -10,8 +22,11 @@ else
 	git branch "AutoBackup"
 fi
 
+# switches to backup branch, applies backup and returns to working branch
+git stash
 git checkout "AutoBackup"
+git stash apply
 echo "Running backup `date +%D' '%r`"
-git add .
 git commit -m "backup `date +%D' '%r`"
 git checkout $currentBranch
+git stash pop
